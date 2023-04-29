@@ -36,9 +36,12 @@ function InputFiles({ sendData, setInput }) {
 
   const moreAccuracy = () => {
     setInput(true);
+    setLoad(true);
+
     axios
       .post('http://localhost:5000/moreAccuracy', { data: text })
       .then((res) => {
+        setLoad(false);
         setText(res.data);
         sendData(res.data);
       })

@@ -2,12 +2,9 @@ import React from 'react';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/esm/Button';
 import { useState } from 'react';
-import axios from 'axios';
 
 function Useranswers({ sendUserData }) {
   const [userAns, setUserAns] = useState('');
-  //   const [correctAnswer, setCorrectAnswer] = useState(''); // from AI
-  //   const [match, setMatch] = useState(false);
 
   const checkAnswer = (e) => {
     e.preventDefault();

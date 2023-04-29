@@ -19,7 +19,6 @@ function Answers({ answers }) {
   };
 
   useEffect(() => {
-    // console.log(userAnswer);
     fetchAnswers();
   }, [userAnswer]);
 
@@ -31,16 +30,8 @@ function Answers({ answers }) {
         corrAns: correctAnswer,
       })
       .then((res) => {
-        console.log(res.data);
         setLoad(false);
-        setConfidence(parseFloat(res.data.confidence));
-        if (parseFloat(res.data) > 0.5) {
-          setConfidence('Correct');
-        } else {
-          setConfidence('Incorrect');
-        }
-        // console.log(confidence);
-        // console.log('success');
+        setConfidence(res.data);
       })
       .catch((err) => {
         console.log(err);
@@ -49,7 +40,7 @@ function Answers({ answers }) {
 
   return (
     <>
-      <Form>
+      <Form className="questions_container">
         <Form.Check
           type="switch"
           id="ans-switch"
@@ -61,7 +52,7 @@ function Answers({ answers }) {
 
       <Useranswers sendUserData={(d) => setUserAnswer(d)} />
       {load ? <Spinner animation="border" variant="success" /> : null}
-      <Confidence confidence={confidence} />
+      {userAnswer && !load ? <Confidence confidence={confidence} /> : null}
     </>
   );
 }

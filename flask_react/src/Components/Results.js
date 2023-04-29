@@ -1,30 +1,30 @@
 import React from 'react';
 import Answers from './Answers';
-import Useranswers from './Useranswers';
 
 function Results({ data }) {
   let questions = [];
 
-  // console.log(data);
   const cleanData = () => {
-    // Answer:|A:
-    questions = data.split(/\d(?=\.)|\n|Q/);
-    questions = questions.filter((x) => x !== '');
+    questions = data.split(/\d(?=\.)|\n|Q/).filter(Boolean);
+    // let regex = /^(\d+\.\s|A:\s)/;
+    // let questions = data.split(regex).filter(Boolean);
   };
 
   cleanData();
-  // console.log(questions);
   return (
-    <div>
-      <h1>Practice Questions</h1>
-      {questions.map((x) =>
+    <>
+      <h1 className="questions_title">Practice Questions</h1>
+      <hr />
+      {questions.map((x, indx) =>
         x[0] === '.' || x[0] === ':' ? (
-          <h4>{x.slice(1)}</h4>
+          <h4 className="questions_question" key={indx}>
+            {x.slice(1)}
+          </h4>
         ) : (
-          <Answers answers={x} />
+          <Answers key={indx} answers={x} />
         )
       )}
-    </div>
+    </>
   );
 }
 

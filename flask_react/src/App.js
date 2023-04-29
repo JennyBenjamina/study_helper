@@ -1,31 +1,3 @@
-// import './App.css';
-// import React, { useState, useEffect } from 'react';
-
-// function App() {
-//   const [data, setData] = useState([{}]);
-
-//   useEffect(() => {
-//     fetch('/members')
-//       .then((response) => response.json())
-//       .then((data) => {
-//         setData(data);
-//         console.log(data);
-//       });
-//   }, []);
-
-//   return (
-//     <div className="App">
-//       {typeof data.members === 'undefined' ? (
-//         <p>Loading...</p>
-//       ) : (
-//         data.members.map((member, i) => <p key={i}>{member}</p>)
-//       )}
-//     </div>
-//   );
-// }
-
-// export default App;
-
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import GenerateExams from './Pages/GenerateExams';
 import LandingPage from './Pages/LandingPage';

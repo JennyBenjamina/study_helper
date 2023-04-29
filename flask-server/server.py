@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify, session, redirect
 from flask_cors import CORS, cross_origin
 from flask_session import Session
 from models.models import db, User
-from utils import generate_prompt, tokenize, text_summarizer, stem, bag_of_words
+from utils import generate_prompt, get_similarity, embed_text
 from config import ApplicationConfig
 import openai
 import whisper
@@ -11,6 +11,8 @@ import os
 from flask_bcrypt import Bcrypt
 from pdfminer.high_level import extract_text
 import cohere
+import pandas as pd
+import numpy as np
 co = cohere.Client('PKwpHpAfrm6yzOJc9StFMkWrYj1NUvfTrVtLxznG')
 
 openai.api_key = os.getenv("OPENAI_API_KEY")
@@ -117,10 +119,10 @@ def send_data():
     # transcribe data
     uploaded_file = request.files['file']
     extension = uploaded_file.filename.split('.')[-1]
-    print(extension) # DELETE!
     if uploaded_file.filename != '':
     #     uploaded_file.save(os.path.join(app.config['UPLOAD_PATH'], uploaded_file.filename))
         uploaded_file.save(uploaded_file.filename)
+
     if extension == 'pdf':
         text = extract_text(uploaded_file.filename)
     elif extension == 'mp3' or extension == 'wav' or extension == 'mp4':
@@ -166,61 +168,34 @@ def moreAccuracy():
     
     return( completion.choices[0].text)
 
-from cohere.responses.classify import Example
-# import json
+
+
+
+
 @app.post('/checkAnswers')
-def checkAnswers():
-    userAns = request.json['user']
-    corrAns = request.json['corrAns']
+def check_ans_v2():
+    userAns = request.json['user'] # this is working from front end
+    corrAns = request.json['corrAns'] # this is working from AI
 
-    if corrAns == "":
-        corrAns = "This is a some answer"
+    df = pd.DataFrame([{'corrAns': corrAns}])
 
-    corrAnsV2 = co.generate(
-        model='xlarge',
-        prompt = 'write me a variation to this text: ' + corrAns,
 
-    )
+    df['userAns_embeds'] = embed_text(df['corrAns'].tolist())
+    embeds = np.array(df['userAns_embeds'].tolist())
 
-    # incorrAns = co.generate(
-    #     model='xlarge',
-    #     prompt = 'write me an opposite variation to this text: ' + corrAns,
-    #     return_likelihoods='NONE'
-    # )
+
+    userAns_embeds = embed_text([userAns])[0]
+
+    similarity = get_similarity(userAns_embeds, embeds)
+    print(similarity)
     
-    # print(incorrAns.generations[0].text)
-    # corrAnsStr = json.dumps(corrAns.generations[0].text)
-
-    corrAnsV2Empty = corrAnsV2.generations[0].text
-    if corrAnsV2Empty == "":
-        corrAnsV2Empty = "This is another answer"
-
-    if userAns == "":
-        userAns = "This is a some user answer to hold until user answers"
-    # classify
-    response = co.classify (
-        model = 'large',
-        inputs = [userAns],
-        examples = [
-            Example(corrAns, 'correct'),
-            Example(corrAnsV2Empty, 'correct'),
-            Example("THis is incorrect", 'incorrect'),
-            Example('whats up?', 'incorrect'),
-            Example("The capital of France is Berlin.", 'incorrect'),
-            Example("World War II started in 1965.", 'incorrect'),
-            Example("The author of the Harry Potter series is J.R.R. Tolkien.", 'incorrect'),
-            Example("The boiling point of water is -10 degrees Celsius.", 'incorrect'),
-
-        ]
-    ) 
-    # print(corrAns)
-    # print(type(response.classifications[0].labels['correct'].confidence))
-    return(str(response.classifications[0].labels['correct'].confidence))
-
-#########################################
-
-
-
+    if similarity[0][1][0] > 0.7:
+        return("Correct")
+    elif similarity[0][1][0] > 0.5:
+        return("Close, but not quite")
+    else:
+        return("Did you even study?! This is way off!")
+    
 
 
 

@@ -6,6 +6,10 @@ stemmer = PorterStemmer()
 from nltk.corpus import stopwords
 import numpy as np
 import re
+import cohere
+from sklearn.metrics.pairwise import cosine_similarity
+
+co = cohere.Client('PKwpHpAfrm6yzOJc9StFMkWrYj1NUvfTrVtLxznG')
 
 
 def tokenize(sentence):
@@ -58,7 +62,63 @@ def text_summarizer(text):
 #############################################################################
 
 def generate_prompt(message):
-    return """Generate 1 practice questions and answers on the subject {}. 
+    return """Generate 2 practice questions and answers on the subject {}. 
     Make sure the questions starts with a number followed by a period. 
     Make sure the answer starts with A followed by a colon.""".format(message)
+
+
+########################################
+
+
+def embed_text(texts):
+  """
+  Turns a piece of text into embeddings
+  Arguments:
+    text(str): the text to be turned into embeddings
+  Returns:
+    embedding(list): the embeddings
+  """
+  # Embed text by calling the Embed endpoint
+  output = co.embed(
+                model="large",
+                texts=texts)
+  embedding = output.embeddings
+
+  return embedding
+
+def squeeze_if_one(arr):
+    # Check if all dimensions are 1
+    if all(dim == 1 for dim in arr.shape):
+        # Find the first non-1 dimension
+        non_one_dim = next((i for i, dim in enumerate(arr.shape) if dim != 1), None)
+        if non_one_dim is not None:
+            # Squeeze all but the first non-1 dimension
+            return np.squeeze(arr, axis=tuple(range(non_one_dim + 1, len(arr.shape))))
+    return arr
+
+def get_similarity(target, candidates):
+    """
+    Computes the similarity between a target text and a list of other texts
+    Arguments:
+    target(list[float]): the target text
+    candidates(list[list[float]]): a list of other texts, or candidates
+    Returns:
+    sim(list[tuple]): candidate IDs and the similarity scores
+    """
+    # Turn list into array
+    candidates = np.array(candidates)
+    target = np.expand_dims(np.array(target),axis=0)
+
+    # Calculate cosine similarity
+    sim = cosine_similarity(target,candidates)
+    sim = squeeze_if_one(sim)
+    # sim = np.squeeze(sim)
+    # sim = sim.tolist()
+    # Sort by descending order in similarity
+    sim = list(enumerate(sim))
+    sim = sorted(sim, key=lambda x:x[1], reverse=True)
+    
+    # Return similarity scores
+    return sim
+
 

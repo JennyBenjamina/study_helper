@@ -11,6 +11,10 @@ body {
   font-family: 'Outfit', sans-serif;
   background-color: #fbf3e3 !important;
 }
+
+.root {
+  height: 100%;
+}
 /* change back */
 .btn.btn-custom {
   background-color: #35ceb2;
@@ -44,6 +48,9 @@ body {
 
 .landing-page {
   display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
 }
 
 .landing-page-left-box {
@@ -62,10 +69,12 @@ body {
 
 .Home-left-box {
   width: 50%;
+  padding: 1.5rem;
 }
 
 .Home-right-box {
   width: 50%;
+  padding: 1.5rem;
 }
 
 .log-reg-container {
@@ -94,6 +103,10 @@ body {
   height: 30px;
   width: 100%;
 } */
+
+.questions_questions {
+  margin-bottom: 1rem;
+}
 
 /* Alert */
 #custom-alert {

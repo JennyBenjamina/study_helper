@@ -108,8 +108,30 @@ body {
   margin-bottom: 1rem;
 }
 
+.questions_container {
+  padding: 1rem;
+}
+
+/* Carousel */
+.carousel-control-next,
+.carousel-control-prev {
+  top: 20rem !important;
+}
+
+.carousel-indicators {
+  top: 20rem !important;
+}
+
 /* Alert */
 #custom-alert {
   margin-top: 15px;
   text-align: center;
+}
+
+/* Modal */
+.modal-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* height: 100vh; */
 }

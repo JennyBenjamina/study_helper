@@ -3,11 +3,11 @@ import Useranswers from './Useranswers';
 import Form from 'react-bootstrap/Form';
 import axios from 'axios';
 import Confidence from './Confidence';
-import Spinner from 'react-bootstrap/Spinner';
+import { Modal, Spinner } from 'react-bootstrap';
 
 function Answers({ answers }) {
   const [showAns, setShowAns] = useState(false);
-  const [userAnswer, setUserAnswer] = useState('');
+  const [userAnswer, setUserAnswer] = useState(null);
   const [correctAnswer, setCorrectAnswer] = useState(answers);
 
   const [confidence, setConfidence] = useState('');
@@ -23,7 +23,9 @@ function Answers({ answers }) {
   }, [userAnswer]);
 
   const fetchAnswers = () => {
-    setLoad(true);
+    if (userAnswer !== null) {
+      setLoad(true);
+    }
     axios
       .post('http://localhost:5000/checkAnswers', {
         user: userAnswer,

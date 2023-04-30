@@ -1,13 +1,29 @@
 import React from 'react';
-import Answers from './Answers';
+import QuesAns from './QuesAns';
+import Card from 'react-bootstrap/Card';
+import { useState } from 'react';
+import Carousel from 'react-bootstrap/Carousel';
 
 function Results({ data }) {
+  const [index, setIndex] = useState(0);
+
+  const handleSelect = (selectedIndex, e) => {
+    setIndex(selectedIndex);
+  };
+
   let questions = [];
+  let formattedQuestions = [];
 
   const cleanData = () => {
-    questions = data.split(/\d(?=\.)|\n|Q/).filter(Boolean);
-    // let regex = /^(\d+\.\s|A:\s)/;
-    // let questions = data.split(regex).filter(Boolean);
+    questions = data.split(/\d(?=\.)+|\n|Q/).filter(Boolean);
+    questions = questions.filter((elem) => elem !== ' ');
+
+    formattedQuestions = questions.reduce((acc, curr, index) => {
+      if (index % 2 === 0) {
+        acc.push({ question: curr, answer: questions[index + 1] });
+      }
+      return acc;
+    }, []);
   };
 
   cleanData();
@@ -15,15 +31,24 @@ function Results({ data }) {
     <>
       <h1 className="questions_title">Practice Questions</h1>
       <hr />
-      {questions.map((x, indx) =>
-        x[0] === '.' || x[0] === ':' ? (
-          <h4 className="questions_question" key={indx}>
-            {x.slice(1)}
-          </h4>
-        ) : (
-          <Answers key={indx} answers={x} />
-        )
-      )}
+      <Carousel
+        slide={false}
+        variant="dark"
+        activeIndex={index}
+        onSelect={handleSelect}
+      >
+        {formattedQuestions.map((x, indx) => (
+          // <Card style={{ width: '100%' }} key={indx}>
+          <Carousel.Item
+            key={indx}
+            index={indx}
+            // active={x.question === formattedQuestions[index].question}
+          >
+            <QuesAns quesAns={x} indx={indx} />
+          </Carousel.Item>
+          // </Card>
+        ))}
+      </Carousel>
     </>
   );
 }
